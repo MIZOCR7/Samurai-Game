@@ -1,43 +1,65 @@
 import pygame
-import random
-from player import *
+from player import Player
 
 pygame.init()
 
+clock = pygame.time.Clock()
+
 WIDTH = 800
 HEIGHT = int(3/4 * WIDTH)
+GROUND_Y = HEIGHT - 100
 
-screen = pygame.display.set_mode((WIDTH,HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
 
-
-player = Player(200, 200, 'player', 3, 1)
+player = Player(200, GROUND_Y - 40, 'player', 5, 1, floor_y=GROUND_Y)
 
 def main():
-  player.draw()
-  player.update()
-  
-  
-  
-  
-  run = True
-  while run:
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT:
-        run = False
+
+    moving_right = False
+    moving_left = False
+
+    run = True
+    while run:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
+                if event.key == pygame.K_a:
+                    moving_left = True
+                    player.run = True
+                if event.key == pygame.K_d:
+                    moving_right = True
+                    player.run = True
+                if event.key == pygame.K_SPACE:
+                    player.jump = True
         
-      elif event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_ESCAPE:
-          run = False
-        if event.key == pygame.K_a:
-          moving_left = True
-        if event.key == pygame.K_d:
-          moving_right = True
-        if event.key == pygame.K_SPACE:
-          player.jump = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_a:
+                    moving_left = False
+                    player.run = False
+                if event.key == pygame.K_d:
+                    moving_right = False
+                    player.run = False
         
-  pygame.quit()
-  
+            
+        screen.fill((0, 0, 0))
+        pygame.draw.line(screen, (255, 0, 0), (0, GROUND_Y), (WIDTH, GROUND_Y))
+        player.move(moving_right, moving_left)
+        player.draw()
+        player.update()
+        
+    
+    
+    
+    
+        pygame.display.update()
+    pygame.quit()
+
 
 if __name__ == "__main__":
-  main()
+    main()
