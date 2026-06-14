@@ -12,7 +12,7 @@ GROUND_Y = HEIGHT - 100
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
 
-player = Player(200, GROUND_Y - 40, 'player', 5, 1, floor_y=GROUND_Y)
+player = Player(200, GROUND_Y - 40, 'player', 5, 1, floor_y=GROUND_Y) 
 
 def main():
 

@@ -18,37 +18,60 @@ class Player(pygame.sprite.Sprite):
         self.max_fall_speed = 10
         self.floor_y = floor_y
         self.animation_list = []
+        self.animation_types = ['idle', 'run', 'jump']
+        self.number_of_frames_list = [6,8,10] 
         self.counter = 0
-        self.frame_index = 0
-        self.spritesheet = pygame.image.load(f"assets/img/{charachter}/idle/idle.png").convert_alpha() 
+        self.frame_index = 0 
         self.run = False
         self.alive = True 
         self.hurt = False 
         self.action = 0
         self.idle = True
         self.run = False
-        self.num_of_frames = 6
-        self.frame_width = int(self.spritesheet.get_width() / self.num_of_frames)
-        self.frame_height = self.spritesheet.get_height()
 
-        for i in range(self.num_of_frames):
-            x_coor = i * self.frame_width
-            slice_rect = pygame.Rect(x_coor, 0, self.frame_width, self.frame_height)
-            frame_image = self.spritesheet.subsurface(slice_rect)
-            self.animation_list.append(frame_image)
+        for index, animation_name in enumerate(self.animation_types):
+            sheet = pygame.image.load(f"assets/img/{charachter}/{animation_name}/{animation_name}.png").convert_alpha()
+            temp_list = []
+            num_of_frames = self.number_of_frames_list[index] 
+            frame_width = int(sheet.get_width() / num_of_frames)
+            frame_height = sheet.get_height()
+            for i in range(num_of_frames):
+                x_coor = i * frame_width
+                slice_rect = pygame.Rect(x_coor, 0, frame_width, frame_height)
+                frame_image = sheet.subsurface(slice_rect)
+                temp_list.append(frame_image)
+            
+            self.animation_list.append(temp_list)
+        self.action = 0 
         self.frame_index = 0
-        self.image = self.animation_list[self.frame_index]
+        self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y)
+        self.rect.topleft = (x, y) 
             
         
-    def animation(self):
-        if self.idle and not self.in_air:
-            num_of_frames = 6 
+    def update_action(self):
+        new_action = 0
+        if self.run:
+           new_action = 1
+        if self.in_air:
+            new_action = 2
         
+        if new_action != self.action:
+            self.action = new_action
+            self.frame_index = 0
+    
+    def update_animation(self):
+        animation_cooldown = 5
         
+        self.counter += 1
+        if self.counter >= animation_cooldown:
+            self.counter = 0
+            self.frame_index += 1
+            if self.frame_index >= len(self.animation_list[self.action]):
+                self.frame_index = 0
             
-            
+        current_frame = self.animation_list[self.action][self.frame_index]
+        self.image = pygame.transform.flip(current_frame, self.flip, False)
         
     def draw(self):
         surface = pygame.display.get_surface()
@@ -62,16 +85,16 @@ class Player(pygame.sprite.Sprite):
         if moving_right:
             self.direction = 1
             self.flip = False
+            self.run = True
             dx = self.speed
-            if self.rect.right - dx >= 850:
-                self.rect.right = 850
-                
+            
         elif moving_left:
             self.direction = -1
             self.flip = True
+            self.run = True
             dx = -self.speed
-            if self.rect.left <= -40:
-                self.rect.left = -40
+        else:
+            self.run = False
 
         if self.jump and not self.in_air:
             self.vel_y = -14
@@ -90,19 +113,8 @@ class Player(pygame.sprite.Sprite):
             self.vel_y = 0
             self.in_air = False
        
-    def update_animation(self):
-        animation_cooldown = 0.15
-        
-        self.frame_index += animation_cooldown
-        if self.frame_index >= len(self.animation_list):
-            self.frame_index = 0
-            
-        self.image = self.animation_list[int(self.frame_index)]
-        if self.direction == -1:
-            self.image = pygame.transform.flip(self.image, True, False)
-        else:
-            self.image = pygame.transform.flip(self.image, False, False)
     
     def update(self):
+        self.update_action()
         self.update_animation()
         
