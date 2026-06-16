@@ -47,7 +47,16 @@ def main():
                     player.attack_2 = True
                 if event.key == pygame.K_c:
                     player.attack_3 = True 
+                if event.key == pygame.K_q:
+                    player.shield = True
                 
+                if event.key == pygame.K_k:
+                    player2_move_right = True
+                if event.key == pygame.K_h:
+                    player2_move_left = True
+                if event.key == pygame.K_u:
+                    enemy.jump = True
+                    
         
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
@@ -56,6 +65,16 @@ def main():
                 if event.key == pygame.K_d:
                     moving_right = False
                     player.run = False
+                if event.key == pygame.K_q:
+                    player.shield = False
+   
+                if event.key == pygame.K_k:
+                    player2_move_right = False
+                if event.key == pygame.K_h:
+                    player2_move_left = False
+                if event.key == pygame.K_u:
+                    enemy.jump = False
+                    
             
         
             
@@ -65,7 +84,7 @@ def main():
         player.draw()
         player.update()
         
-        
+        enemy.player2_move(player2_move_right, player2_move_left)
         enemy.draw()
         enemy.update()
     
