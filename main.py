@@ -7,12 +7,13 @@ clock = pygame.time.Clock()
 
 WIDTH = 800
 HEIGHT = int(3/4 * WIDTH)
-GROUND_Y = HEIGHT - 100
+GROUND_Y = HEIGHT - 100 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
 
-player = Player(200, GROUND_Y - 40, 'player', 5, 1, floor_y=GROUND_Y) 
+player = Player(200, GROUND_Y - 40, 'player', 5, 1, 1.25, floor_y=GROUND_Y) 
+enemy = Player(200, GROUND_Y - 40, 'Samurai', 5, 1, 1.25, floor_y=GROUND_Y) 
 
 def main():
 
@@ -37,6 +38,13 @@ def main():
                     player.run = True
                 if event.key == pygame.K_SPACE:
                     player.jump = True
+                if event.key == pygame.K_z:
+                    player.attack_1 = True
+                if event.key == pygame.K_x:
+                    player.attack_2 = True
+                if event.key == pygame.K_c:
+                    player.attack_3 = True 
+                
         
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
@@ -45,6 +53,7 @@ def main():
                 if event.key == pygame.K_d:
                     moving_right = False
                     player.run = False
+            
         
             
         screen.fill((0, 0, 0))
@@ -53,6 +62,9 @@ def main():
         player.draw()
         player.update()
         
+        
+        enemy.draw()
+        enemy.update()
     
     
     
