@@ -19,6 +19,9 @@ def main():
 
     moving_right = False
     moving_left = False
+    
+    player2_move_right = False
+    player2_move_left = False
 
     run = True
     while run:

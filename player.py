@@ -147,7 +147,7 @@ class Player(pygame.sprite.Sprite):
             self.in_air = False
        
     
-    def attack(self):
+    def player2_move(moving_right, moving_left):
         pass 
     
     
