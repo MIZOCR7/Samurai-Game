@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.shield = False 
         self.health = 100 
         self.max_health = self.health
-        self.displacement = 0
+        self.attack_cooldown = False
         
         
         
@@ -125,7 +125,8 @@ class Player(pygame.sprite.Sprite):
         if new_action != self.action:
             self.action = new_action
             self.frame_index = 0
-    
+        
+        
     def update_animation(self):
         animation_cooldown = 5 
         
@@ -142,6 +143,7 @@ class Player(pygame.sprite.Sprite):
                 self.attack_2 = False 
                 self.attack_3 = False
                 self.hurt = False
+                self.attack_cooldown = False
                 
             if not self.alive:
                 self.frame_index = len(self.animation_list[self.action]) - 1 
@@ -159,24 +161,22 @@ class Player(pygame.sprite.Sprite):
     def move(self, moving_right, moving_left, screen, player):
         if self.alive: 
             dx = 0 
-            
             my_collide_box = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
-            
             target_collide_box = pygame.Rect(player.rect.x + 50, player.rect.y + 50, player.rect.width - 100, player.rect.height - 50)
-            
-            pygame.draw.rect(screen, (0,0,255), my_collide_box)
-            pygame.draw.rect(screen, (0,255,0), target_collide_box)
+
+            pygame.draw.rect(screen, (255,0,0), my_collide_box)
+            pygame.draw.rect(screen, (0,0,255), target_collide_box)
+
             if (self.attack_1 or self.attack_2 or self.attack_3) and not self.in_air:
                 moving_right = False
                 moving_left = False
                 self.run = False
-            
+
             if moving_right:
                 self.direction = 1
                 self.flip = False
                 self.run = True
                 dx = self.speed
-                
             elif moving_left:
                 self.direction = -1
                 self.flip = True
@@ -196,30 +196,37 @@ class Player(pygame.sprite.Sprite):
 
             self.rect.x += dx
             my_collide_box.x += dx
-            if my_collide_box.colliderect(target_collide_box) and abs(my_collide_box.bottom - target_collide_box.bottom) < 20:
-                self.rect.x -= dx
-            
-            self.rect.y += self.vel_y 
+            if my_collide_box.colliderect(target_collide_box):
+                if my_collide_box.bottom > target_collide_box.top + 10:
+                    self.rect.x -= dx
+                    my_collide_box.x -= dx
+
+            self.rect.y += self.vel_y
+            my_collide_box.y += self.vel_y
+            if my_collide_box.colliderect(target_collide_box):
+                if self.vel_y > 0 and (my_collide_box.bottom - self.vel_y <= target_collide_box.top + 10):
+                    sink_offset = my_collide_box.bottom - target_collide_box.top
+                    self.rect.y -= sink_offset
+                    self.vel_y = 0
+                    self.in_air = False
 
             if self.rect.y >= self.floor_y - self.rect.height:
-                self.rect.y = self.floor_y - self.rect.height 
+                self.rect.y = self.floor_y - self.rect.height
                 self.vel_y = 0
-                self.in_air = False 
+                self.in_air = False
         
      
         
     def player2_move(self, moving_right, moving_left, screen, player):
         if self.alive:
             dx = 0
-            
             my_collide_box = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
-            
             target_collide_box = pygame.Rect(player.rect.x + 50, player.rect.y + 50, player.rect.width - 100, player.rect.height - 50)
-            
+
             if moving_right:
                 self.direction = 1
                 self.flip = False
-                self.run = True 
+                self.run = True
                 dx = self.speed
             elif moving_left:
                 self.direction = -1
@@ -228,30 +235,37 @@ class Player(pygame.sprite.Sprite):
                 dx = -self.speed
             else:
                 self.run = False
-                
+
             if self.jump and not self.in_air:
-                self.vel_y = -17
+                self.vel_y = -14
                 self.jump = False
                 self.in_air = True
-            
+
             self.vel_y += self.gravity
             if self.vel_y > self.max_fall_speed:
                 self.vel_y = self.max_fall_speed
-            
+
             self.rect.x += dx
             my_collide_box.x += dx
-            if my_collide_box.colliderect(target_collide_box) and abs(my_collide_box.bottom - target_collide_box.bottom) < 20:
-                self.rect.x -= dx
-            
-            
-            self.rect.y += self.vel_y 
-            
+            if my_collide_box.colliderect(target_collide_box):
+                if my_collide_box.bottom > target_collide_box.top + 10:
+                    self.rect.x -= dx
+
+            self.rect.y += self.vel_y
+            my_collide_box.y += self.vel_y
+            if my_collide_box.colliderect(target_collide_box):
+                if self.vel_y > 0 and (my_collide_box.bottom - self.vel_y <= target_collide_box.top + 10):
+                    sink_offset = my_collide_box.bottom - target_collide_box.top
+                    self.rect.y -= sink_offset
+                    self.vel_y = 0
+                    self.in_air = False
+
             if self.rect.y >= self.floor_y - self.rect.height:
                 self.rect.y = self.floor_y - self.rect.height
                 self.vel_y = 0
                 self.in_air = False
             
-            
+  
       
             
             
@@ -260,35 +274,48 @@ class Player(pygame.sprite.Sprite):
         player_hitbox = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
         player_hitbox.center = player.rect.center 
         
-        if not self.shield: 
-            if self.character == 'player' or (self.character == 'Samurai' and not self.attack_3):
-                if (self.attack_1 or self.attack_2 or self.attack_3):
+        if player.alive:
+            if not self.shield: 
+                if self.character == 'player' or (self.character == 'Samurai' and not self.attack_3):
+                    if (self.attack_1 or self.attack_2 or self.attack_3):
+                        
+                        box_x = self.rect.right - 90 if self.direction == 1 else (self.rect.left + 40) 
+                        
+                        attack_box = pygame.Rect(box_x, self.rect.y + 60, 50, self.rect.height - 60) 
+                        
+                        
+                        if attack_box.colliderect(player_hitbox): 
+                            if player.shield:
+                                player.rect.x += self.direction * 20 
+                            else:
+                                player.hurt = True
+                                if not self.attack_cooldown:
+                                    player.health -= 10
+                                    self.attack_cooldown = True
+                                    if player.health <= 0:
+                                        player.alive = False
+                                        player.health = 0
+                                        
+                             
+                elif (self.character == 'Samurai' and self.attack_3): 
+                    if self.direction == 1:
+                        attack_box = pygame.Rect((self.rect.x + 70), self.rect.y  + 70, (self.rect.width - 80) * self.direction, self.rect.height - 70) 
+                    elif self.direction == -1:
+                        attack_box = pygame.Rect((self.rect.left), self.rect.y + 70, (self.rect.width - 60), self.rect.height - 70)
+    
                     
-                    box_x = self.rect.right - 90 if self.direction == 1 else (self.rect.left + 40) 
-                    
-                    attack_box = pygame.Rect(box_x, self.rect.y + 60, 50, self.rect.height - 60) 
-                    
-                    pygame.draw.rect(screen, (255,0,0), attack_box)
                     if attack_box.colliderect(player_hitbox): 
                         if player.shield:
-                            player.rect.x += player.direction * 20
+                            player.rect.x += self.direction * 20 
                         else:
-                            player.hurt = True 
+                            player.hurt = True
+                            if not self.attack_cooldown:
+                                    player.health -= 10
+                                    self.attack_cooldown = True
+                                    if player.health <= 0:
+                                        player.alive = False 
+                                        player.health = 0
                         
-            elif (self.character == 'Samurai' and self.attack_3): 
-                if self.direction == 1:
-                    attack_box = pygame.Rect((self.rect.x + 70), self.rect.y  + 70, (self.rect.width - 80) * self.direction, self.rect.height - 70) 
-                elif self.direction == -1:
-                    attack_box = pygame.Rect((self.rect.left), self.rect.y + 70, (self.rect.width - 60), self.rect.height - 70)
-                
-                pygame.draw.rect(screen, (255,0,0), attack_box)
-                if attack_box.colliderect(player_hitbox): 
-                    if player.shield:
-                        player.rect.x += self.direction * 20 
-                    else:
-                        player.hurt = True
-                            
-        
     
     
     def update(self):

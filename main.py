@@ -5,7 +5,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-WIDTH = 800
+WIDTH = 800 
 HEIGHT = int(3/4 * WIDTH)
 GROUND_Y = HEIGHT - 100 
 
