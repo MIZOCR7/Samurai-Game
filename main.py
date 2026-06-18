@@ -12,8 +12,8 @@ GROUND_Y = HEIGHT - 100
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
 
-player = Player(600, GROUND_Y - 40, 'player', 5, 1, 1.25, floor_y=GROUND_Y) 
-enemy = Player(200, GROUND_Y - 40, 'Samurai', 5, 1, 1.25, floor_y=GROUND_Y) 
+player = Player(500, GROUND_Y - 40, 'player', 5, 1, 1.25, floor_y=GROUND_Y)
+enemy = Player(340, GROUND_Y - 40, 'Samurai', 5, 1, 1.25, floor_y=GROUND_Y)
 
 def main():
 
@@ -98,12 +98,11 @@ def main():
             
         screen.fill((0, 0, 0))
         pygame.draw.line(screen, (255, 0, 0), (0, GROUND_Y), (WIDTH, GROUND_Y))
-        player.move(moving_right, moving_left, screen, player) 
+        player.move(moving_right, moving_left, screen, enemy) 
         player.attack(screen, enemy) 
-        player.draw()
+        player.draw() 
         player.update()
-        
-        enemy.player2_move(player2_move_right, player2_move_left, screen, enemy)
+        enemy.player2_move(player2_move_right, player2_move_left, screen, player)
         enemy.attack(screen, player)
         enemy.draw() 
         enemy.update() 

@@ -65,7 +65,8 @@ class Player(pygame.sprite.Sprite):
             self.frame_index = 0
             self.image = self.animation_list[self.action][self.frame_index]
             self.rect = self.image.get_rect()
-            self.rect.topleft = (x, y) 
+            self.rect.topleft = (x, y)
+            self.rect.bottom = self.floor_y
         
         if self.character == 'Samurai':
             for index, animation_name in enumerate(self.animation_types):
@@ -91,7 +92,8 @@ class Player(pygame.sprite.Sprite):
             self.frame_index = 0
             self.image = self.animation_list[self.action][self.frame_index]
             self.rect = self.image.get_rect()
-            self.rect.topleft = (x, y) 
+            self.rect.topleft = (x, y)
+            self.rect.bottom = self.floor_y
         
             
         
@@ -158,9 +160,12 @@ class Player(pygame.sprite.Sprite):
         if self.alive: 
             dx = 0 
             
-            player_hitbox = pygame.Rect(self.rect.x + 50, self.rect.y + 50, self.rect.width - 90, player.rect.height - 50) 
-            pygame.draw.rect(screen, (255,0,0), player_hitbox) 
+            my_collide_box = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
             
+            target_collide_box = pygame.Rect(player.rect.x + 50, player.rect.y + 50, player.rect.width - 100, player.rect.height - 50)
+            
+            pygame.draw.rect(screen, (0,0,255), my_collide_box)
+            pygame.draw.rect(screen, (0,255,0), target_collide_box)
             if (self.attack_1 or self.attack_2 or self.attack_3) and not self.in_air:
                 moving_right = False
                 moving_left = False
@@ -190,6 +195,10 @@ class Player(pygame.sprite.Sprite):
                 self.vel_y = self.max_fall_speed
 
             self.rect.x += dx
+            my_collide_box.x += dx
+            if my_collide_box.colliderect(target_collide_box) and abs(my_collide_box.bottom - target_collide_box.bottom) < 20:
+                self.rect.x -= dx
+            
             self.rect.y += self.vel_y 
 
             if self.rect.y >= self.floor_y - self.rect.height:
@@ -197,14 +206,15 @@ class Player(pygame.sprite.Sprite):
                 self.vel_y = 0
                 self.in_air = False 
         
+     
         
     def player2_move(self, moving_right, moving_left, screen, player):
         if self.alive:
             dx = 0
             
-            my_collide_box = pygame.Rect(self.rect.x + 50, self.rect.y + 50, self.rect.width - 90, player.rect.height - 50) 
+            my_collide_box = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
             
-            target_collide_box = pygame.Rect(self.rect.x + 50, self.rect.y + 50, self.rect.width - 90, player.rect.height - 50) 
+            target_collide_box = pygame.Rect(player.rect.x + 50, player.rect.y + 50, player.rect.width - 100, player.rect.height - 50)
             
             if moving_right:
                 self.direction = 1
@@ -242,13 +252,13 @@ class Player(pygame.sprite.Sprite):
                 self.in_air = False
             
             
-            
+      
             
             
                 
     def attack(self, screen, player):
-        player_hitbox = pygame.Rect(0, 0, 60, player.rect.height)
-        player_hitbox.center = player.rect.center
+        player_hitbox = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
+        player_hitbox.center = player.rect.center 
         
         if not self.shield: 
             if self.character == 'player' or (self.character == 'Samurai' and not self.attack_3):
