@@ -12,7 +12,7 @@ GROUND_Y = HEIGHT - 100
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
 
-player = Player(200, GROUND_Y - 40, 'player', 5, 1, 1.25, floor_y=GROUND_Y) 
+player = Player(600, GROUND_Y - 40, 'player', 5, 1, 1.25, floor_y=GROUND_Y) 
 enemy = Player(200, GROUND_Y - 40, 'Samurai', 5, 1, 1.25, floor_y=GROUND_Y) 
 
 def main():
@@ -26,7 +26,8 @@ def main():
     run = True
     while run:
         clock.tick(60)
-
+        
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -41,14 +42,20 @@ def main():
                     player.run = True
                 if event.key == pygame.K_SPACE:
                     player.jump = True
-                if event.key == pygame.K_z:
-                    player.attack_1 = True
-                if event.key == pygame.K_x:
-                    player.attack_2 = True
-                if event.key == pygame.K_c:
-                    player.attack_3 = True 
-                if event.key == pygame.K_q:
-                    player.shield = True
+                
+                if player.alive:
+                    if event.key == pygame.K_z:
+                        player.attack_1 = True
+                    if event.key == pygame.K_x:
+                        player.attack_2 = True
+                    if event.key == pygame.K_c:
+                        player.attack_3 = True 
+                    if event.key == pygame.K_q:
+                        player.shield = True
+                
+                if event.key == pygame.K_t:
+                    player.alive = False 
+                    enemy.alive = False 
                 
                 if event.key == pygame.K_k:
                     player2_move_right = True
@@ -56,7 +63,16 @@ def main():
                     player2_move_left = True
                 if event.key == pygame.K_u:
                     enemy.jump = True
-                    
+                
+                if enemy.alive: 
+                    if event.key == pygame.K_b:
+                        enemy.attack_1 = True
+                    if event.key == pygame.K_n:
+                        enemy.attack_2 = True
+                    if event.key == pygame.K_m:
+                        enemy.attack_3 = True 
+                    if event.key == pygame.K_y:
+                        enemy.shield = True
         
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
@@ -74,20 +90,27 @@ def main():
                     player2_move_left = False
                 if event.key == pygame.K_u:
                     enemy.jump = False
+                if event.key == pygame.K_y:
+                    enemy.shield = False 
                     
             
-        
+       
             
         screen.fill((0, 0, 0))
         pygame.draw.line(screen, (255, 0, 0), (0, GROUND_Y), (WIDTH, GROUND_Y))
-        player.move(moving_right, moving_left)
+        player.move(moving_right, moving_left, screen, player) 
+        player.attack(screen, enemy) 
         player.draw()
         player.update()
         
-        enemy.player2_move(player2_move_right, player2_move_left)
-        enemy.draw()
-        enemy.update()
-    
+        enemy.player2_move(player2_move_right, player2_move_left, screen, enemy)
+        enemy.attack(screen, player)
+        enemy.draw() 
+        enemy.update() 
+        
+        
+        
+        
     
     
     
