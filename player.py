@@ -280,7 +280,7 @@ class Player(pygame.sprite.Sprite):
             
             
                 
-    def attack(self, screen, player):
+    def attack(self, screen, player, punch_fx, shield_fx):
         player_hitbox = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
         player_hitbox.center = player.rect.center 
         
@@ -297,16 +297,19 @@ class Player(pygame.sprite.Sprite):
                         if attack_box.colliderect(player_hitbox): 
                             if player.shield:
                                 player.rect.x += self.direction * 20 
+                                shield_fx.play()
                             else:
                                 player.hurt = True
                                 if not self.attack_cooldown:
                                     player.health -= 10
+                                    punch_fx.play()
                                     self.attack_cooldown = True
                                     if player.health <= 0:
                                         player.alive = False
                                         player.health = 0
                                         
-                             
+                            
+                            
                 elif (self.character == 'Samurai' and self.attack_3): 
                     if self.direction == 1:
                         attack_box = pygame.Rect((self.rect.x + 70), self.rect.y  + 70, (self.rect.width - 80) * self.direction, self.rect.height - 70) 
@@ -317,11 +320,13 @@ class Player(pygame.sprite.Sprite):
                     if attack_box.colliderect(player_hitbox): 
                         if player.shield:
                             player.rect.x += self.direction * 20 
+                            shield_fx.play()
                         else:
                             player.hurt = True
                             if not self.attack_cooldown:
                                     player.health -= 10
                                     self.attack_cooldown = True
+                                    punch_fx.play()
                                     if player.health <= 0:
                                         player.alive = False 
                                         player.health = 0
@@ -342,7 +347,7 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, (0,255,0), health_bar)
         p2_text = self.font.render("Samurai", True, (255, 255, 255))
         screen.blit(p2_text, (672, 25)) 
-    
+
     def update(self):
         self.update_action()
         self.update_animation()
