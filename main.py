@@ -7,7 +7,7 @@ clock = pygame.time.Clock()
 
 WIDTH = 800 
 HEIGHT = int(3/4 * WIDTH)
-GROUND_Y = HEIGHT - 100 
+GROUND_Y = HEIGHT - 50
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
@@ -16,7 +16,11 @@ player = Player(500, GROUND_Y - 40, 'player', 5, 1, 1.25, floor_y=GROUND_Y)
 enemy = Player(340, GROUND_Y - 40, 'Samurai', 5, 1, 1.25, floor_y=GROUND_Y)
 
 def main():
-
+    
+    background_img = pygame.image.load("assets/background.png").convert()
+    background_img = pygame.transform.scale(background_img, (800, 600))
+     
+    
     moving_right = False
     moving_left = False
     
@@ -94,14 +98,15 @@ def main():
                     enemy.shield = False 
                     
             
-       
-            
-        screen.fill((0, 0, 0))
-        pygame.draw.line(screen, (255, 0, 0), (0, GROUND_Y), (WIDTH, GROUND_Y))
+        screen.blit(background_img, (0, 0))
+        
+        
+        pygame.draw.line(screen, (76, 85, 91), (0, GROUND_Y), (WIDTH, GROUND_Y))
         player.move(moving_right, moving_left, screen, enemy) 
+        player.bars(screen, enemy) 
         player.attack(screen, enemy) 
         player.draw() 
-        player.update()
+        player.update() 
         enemy.player2_move(player2_move_right, player2_move_left, screen, player)
         enemy.attack(screen, player)
         enemy.draw() 
