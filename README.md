@@ -1,4 +1,4 @@
-# Samurai Game 🎮
+# Samurai Game 
 
 A simple 2D fighting game built with Python and Pygame. It's a local 2-player game that supports both Keyboards and Joysticks/Controllers.
 
@@ -18,11 +18,9 @@ A simple 2D fighting game built with Python and Pygame. It's a local 2-player ga
 
 ---
 
-## How to Run 🚀
+## How to Run 
 
-1. Make sure you have Python and Pygame installed. If not, open your terminal and run:
-   ```bash
-   pip install pygame
+Just intall the Release of the excutable file
 
 <img width="803" height="633" alt="image" src="https://github.com/user-attachments/assets/7cbec894-90be-4281-824c-f388df031e58" />
 <img width="804" height="633" alt="image" src="https://github.com/user-attachments/assets/9ed85f72-2325-451f-a444-a0a58a333f9a" />
