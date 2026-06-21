@@ -1,6 +1,10 @@
 import pygame
+import os
+import sys
 from player import Player
 from pygame import mixer
+
+
 
 pygame.init()
 pygame.joystick.init()
@@ -22,6 +26,14 @@ def draw_text(surface, text, size, x, y, color=(255,255,255)):
     text_surf = font.render(text, True, color)
     text_rect = text_surf.get_rect(center=(x, y))
     surface.blit(text_surf, text_rect)
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 def get_connected_joysticks():
@@ -61,35 +73,35 @@ def reset_game():
 
 
 def main():
-    background_img = pygame.image.load("assets/background.png").convert()
+    background_img = pygame.image.load(resource_path("assets/background.png")).convert()
     background_img = pygame.transform.scale(background_img, (800, 600))
     
     countdown = 3
     last_count_update = pygame.time.get_ticks()
     
-    hit1 = pygame.mixer.Sound("assets/music/hit1.wav")
+    hit1 = pygame.mixer.Sound(resource_path("assets/music/hit1.wav"))
     hit1.set_volume(0.4)
     
-    punch = pygame.mixer.Sound("assets/music/punch.mp3")
+    punch = pygame.mixer.Sound(resource_path("assets/music/punch.mp3"))
     punch.set_volume(0.5)
     
-    shield = pygame.mixer.Sound('assets/music/shield.wav')
+    shield = pygame.mixer.Sound(resource_path('assets/music/shield.wav'))
     shield.set_volume(0.4)
     
-    jump_fx = pygame.mixer.Sound('assets/music/jump.wav')
+    jump_fx = pygame.mixer.Sound(resource_path('assets/music/jump.wav'))
     jump_fx.set_volume(0.3)
     
-    win_fx = pygame.mixer.Sound("assets/music/win.mp3")
+    win_fx = pygame.mixer.Sound(resource_path("assets/music/win.mp3"))
     win_fx.set_volume(0.4)
     
-    main_fx = pygame.mixer.Sound('assets/music/background.mp3')
+    main_fx = pygame.mixer.Sound(resource_path('assets/music/background.mp3'))
     main_fx.set_volume(0.2)
     main_fx.play()
     
-    go_fx = pygame.mixer.Sound('assets/music/go.mp3')
+    go_fx = pygame.mixer.Sound(resource_path('assets/music/go.mp3'))
     go_fx.set_volume(0.4)
     
-    count_fx = pygame.mixer.Sound("assets/music/count.mp3")
+    count_fx = pygame.mixer.Sound(resource_path("assets/music/count.mp3"))
     count_fx.set_volume(0.4)
     
     moving_right = False
@@ -145,7 +157,7 @@ def main():
                     player.jump = True
                     jump_fx.play()
 
-                if player.alive:
+                if player.alive: 
                     if event.key == pygame.K_z:
                         player.attack_1 = True
                         hit1.play()
