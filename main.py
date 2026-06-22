@@ -5,7 +5,6 @@ from player import Player
 from pygame import mixer
 
 
-
 pygame.init()
 pygame.joystick.init()
 pygame.mixer.init()
@@ -14,11 +13,10 @@ clock = pygame.time.Clock()
 
 WIDTH = 800 
 HEIGHT = int(3/4 * WIDTH)
-GROUND_Y = HEIGHT - 50
+GROUND_Y = HEIGHT - 50 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Samurai Game")
-
 
 
 def draw_text(surface, text, size, x, y, color=(255,255,255)):
@@ -73,6 +71,7 @@ def reset_game():
 
 
 def main():
+    
     background_img = pygame.image.load(resource_path("assets/background.png")).convert()
     background_img = pygame.transform.scale(background_img, (800, 600))
     
@@ -329,6 +328,7 @@ def main():
 
             player.move(player_move_right, player_move_left, screen, enemy)
             player.bars(screen, enemy)
+            player.health_tiles(screen, enemy)
             player.attack(screen, enemy, punch, shield)
             player.draw()
             player.update()

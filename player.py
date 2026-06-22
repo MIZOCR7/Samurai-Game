@@ -1,7 +1,7 @@
 import pygame
 import os
 import sys
-
+import random
 
 def resource_path(relative_path):
     try:
@@ -48,9 +48,14 @@ class Player(pygame.sprite.Sprite):
         self.health = 100 
         self.max_health = self.health
         self.attack_cooldown = False
-        self.font = pygame.font.Font(None, 28)
+        self.font = pygame.font.Font(None, 28) 
         self.special_power = 0
         self.max_power = 100
+        self.displacement = 20
+        self.tile_image = pygame.image.load('assets/img/img.png').convert_alpha()
+        self.tile_rect = None
+        self.spawn_cooldown = 5000
+        self.next_spawn_time = pygame.time.get_ticks()
 
         if self.character == 'player':
             for index, animation_name in enumerate(self.animation_types):
@@ -209,8 +214,10 @@ class Player(pygame.sprite.Sprite):
             if player.alive: 
                 if my_collide_box.x <= 0: 
                     self.rect.x -= dx
+                    self.displacement = 0
                 if my_collide_box.right >= 800:
                     self.rect.x -= dx
+                    self.displacement = 0
                 if my_collide_box.colliderect(target_collide_box):
                     if my_collide_box.bottom > target_collide_box.top + 10:
                         self.rect.x -= dx
@@ -266,8 +273,10 @@ class Player(pygame.sprite.Sprite):
             if player.alive:
                 if my_collide_box.x <= 0: 
                     self.rect.x -= dx
+                    self.displacement = 0
                 if my_collide_box.right >= 800:
                     self.rect.x -= dx
+                    self.displacement = 0
                 if my_collide_box.colliderect(target_collide_box):
                     if my_collide_box.bottom > target_collide_box.top + 10:
                         self.rect.x -= dx 
@@ -309,7 +318,9 @@ class Player(pygame.sprite.Sprite):
                         
                         if attack_box.colliderect(player_hitbox): 
                             if player.shield: 
-                                player.rect.x += self.direction * 20 
+                                target_x = player.rect.x + (self.direction * self.displacement)
+                                if target_x + 45 >= 0 and target_x + (player.rect.width - 55) <= 800:
+                                    player.rect.x = target_x
                                 shield_fx.play()
                             else:
                                 player.hurt = True
@@ -333,7 +344,9 @@ class Player(pygame.sprite.Sprite):
                     
                     if attack_box.colliderect(player_hitbox): 
                         if player.shield:
-                            player.rect.x += self.direction * 20 
+                            target_x = player.rect.x + (self.direction * self.displacement)
+                            if target_x + 45 >= 0 and target_x + (player.rect.width - 55) <= 800:
+                                player.rect.x = target_x 
                             shield_fx.play()
                         else:
                             player.hurt = True
@@ -386,7 +399,35 @@ class Player(pygame.sprite.Sprite):
         screen.blit(power_surface, (550,80)) 
         
         
-
+    def health_tiles(self,screen, enemy, floor_y=500):
+        current_time = pygame.time.get_ticks()
+        if self.tile_rect is None and current_time >= self.next_spawn_time:
+            rand_x = random.randint(50,750)
+            rand_y = floor_y - self.tile_image.get_height()
+            self.tile_rect = pygame.Rect(rand_x, rand_y, self.tile_image.get_width(), self.tile_image.get_height())
+        
+        if self.tile_rect is not None:
+                my_hitbox = pygame.Rect(self.rect.x + 45, self.rect.y + 50, self.rect.width - 100, self.rect.height - 50)
+                enemy_hitbox = pygame.Rect(enemy.rect.x + 45, enemy.rect.y + 50, enemy.rect.width - 100, enemy.rect.height - 50)
+                
+                if my_hitbox.colliderect(self.tile_rect):
+                    self.health = min(self.max_health, self.health + 20)
+                    self.tile_rect = None
+                    self.next_spawn_time = current_time + self.spawn_cooldown 
+                    enemy.next_spawn_time = self.next_spawn_time
+                
+                elif self.tile_rect is not None and enemy_hitbox.colliderect(self.tile_rect):
+                    enemy.health = min(self.max_health, self.health + 20)
+                    self.tile_rect = None
+                    self.next_spawn_time = current_time + self.spawn_cooldown
+                    enemy.next_spawn_time = self.next_spawn_time 
+            
+        if self.tile_rect is not None:
+                screen.blit(self.tile_image, self.tile_rect)
+        
+    
+    
+    
     def update(self):
         self.update_action()
         self.update_animation()
