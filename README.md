@@ -9,12 +9,14 @@ A simple 2D fighting game built with Python and Pygame. It's a local 2-player ga
 * **Jump:** `SPACE`
 * **Attacks:** `Z`, `X`, `C`
 * **Shield:** `Q`
+* * **Special Power:** `R`
 
 ### Player 2 (Samurai):
 * **Move:** `H` / `K`
 * **Jump:** `U`
 * **Attacks:** `B`, `N`, `M`
 * **Shield:** `Y`
+* **Special Power:** `I`
 
 ---
 
