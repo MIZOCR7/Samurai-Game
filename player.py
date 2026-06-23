@@ -56,7 +56,24 @@ class Player(pygame.sprite.Sprite):
         self.tile_rect = None
         self.spawn_cooldown = 5000
         self.next_spawn_time = pygame.time.get_ticks()
-
+        
+        self.fireball_frames = []
+        num_of_ball_frames = 5 if self.character == 'player' else 11
+        ball_folder = 'ninja' if self.character == 'player' else 'samurai'
+        
+        for i in range(1, num_of_ball_frames + 1):
+            frame = pygame.image.load(resource_path(f"assets/balls/{ball_folder}/{i}.png")).convert_alpha()
+            if self.character == 'Samurai':
+                frame = pygame.transform.scale(frame, (50, 50))
+            self.fireball_frames.append(frame)
+        self.fireball_rect = None
+        self.fireball_dir = 0
+        self.ball_frame_index = 0
+        self.ball_counter = 0
+        self.ball_speed = 12
+        self.shoot_fireball = False
+        
+        
         if self.character == 'player':
             for index, animation_name in enumerate(self.animation_types):
                 sheet = pygame.image.load(resource_path(f"assets/img/{charachter}/{animation_name}/{animation_name}.png")).convert_alpha()
@@ -166,11 +183,16 @@ class Player(pygame.sprite.Sprite):
         current_frame = self.animation_list[self.action][self.frame_index]
         self.image = pygame.transform.flip(current_frame, self.flip, False) 
         
-    def draw(self):
+    def draw(self,screen):
         surface = pygame.display.get_surface()
         if surface:
             surface.blit(self.image, self.rect) 
-        
+        if self.fireball_rect is not None:
+            current_ball_image = self.fireball_frames[self.ball_frame_index]
+            if self.fireball_dir == -1:
+                current_ball_image = pygame.transform.flip(current_ball_image, True, False)
+            
+            screen.blit(current_ball_image, self.fireball_rect)
 
     def move(self, moving_right, moving_left, screen, player):
         if self.alive: 
@@ -417,17 +439,53 @@ class Player(pygame.sprite.Sprite):
                     enemy.next_spawn_time = self.next_spawn_time
                 
                 elif self.tile_rect is not None and enemy_hitbox.colliderect(self.tile_rect):
-                    enemy.health = min(self.max_health, self.health + 20)
+                    enemy.health = min(enemy.max_health, enemy.health + 20)
                     self.tile_rect = None
                     self.next_spawn_time = current_time + self.spawn_cooldown
                     enemy.next_spawn_time = self.next_spawn_time 
             
         if self.tile_rect is not None:
                 screen.blit(self.tile_image, self.tile_rect)
+    
+    
+    def fireballs(self, enemy):
+        current_time = pygame.time.get_ticks()
+        keys = pygame.key.get_pressed()
         
-    
-    
-    
+        shoot_key = pygame.K_r if self.character == 'player' else pygame.K_i
+        
+        if self.alive and self.special_power >= self.max_power and (keys[shoot_key] or self.shoot_fireball):
+            if self.fireball_rect is None:
+                self.fireball_rect = pygame.Rect(self.rect.centerx, self.rect.centery, 40, 40)
+                self.fireball_dir = self.direction
+                self.ball_frame_index = 0
+                self.special_power = 0
+                
+        if self.fireball_rect is not None:
+            self.fireball_rect.x += self.fireball_dir * self.ball_speed
+            
+            self.ball_counter += 1
+            if self.ball_counter >= 5:
+                self.ball_counter = 0
+                self.ball_frame_index += 1
+                if self.ball_frame_index >= len(self.fireball_frames):
+                    self.ball_frame_index = 0
+            
+            if self.fireball_rect.right < 0 or self.fireball_rect.left > 800:
+                self.fireball_rect = None
+                
+            else:
+                enemy_hitbox = pygame.Rect(enemy.rect.x + 45, enemy.rect.y + 50, enemy.rect.width - 100, enemy.rect.height - 50)
+                if self.fireball_rect.colliderect(enemy_hitbox):
+                    if not enemy.shield:
+                        enemy.health -= 25
+                        enemy.hurt = True
+                    else:
+                        enemy.rect.x += self.fireball_dir * 15
+                    self.fireball_rect = None
+                    
+                    
     def update(self):
         self.update_action()
         self.update_animation()
+

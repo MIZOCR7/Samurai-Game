@@ -169,10 +169,6 @@ def main():
                     if event.key == pygame.K_q:
                         player.shield = True
 
-                if event.key == pygame.K_t:
-                    player.alive = False
-                    enemy.alive = False
-
                 if event.key == pygame.K_k:
                     player2_move_right = True
                 if event.key == pygame.K_h:
@@ -214,6 +210,8 @@ def main():
                     if event.button == 4:
                         enemy.jump = True
                         jump_fx.play()
+                    if event.button == 5:
+                        enemy.shoot_fireball = True
                 elif player_joystick is not None and ejid is not None and ejid == _joy_get_id(player_joystick):
                     if event.button == 0:
                         player.attack_1 = True
@@ -229,6 +227,8 @@ def main():
                     if event.button == 4:
                         player.jump = True
                         jump_fx.play()
+                    if event.button == 5:
+                        player.shoot_fireball = True
 
             elif event.type == pygame.JOYBUTTONUP:
                 if game_state != 'playing':
@@ -240,11 +240,15 @@ def main():
                         enemy.shield = False
                     if event.button == 4:
                         enemy.jump = False
+                    if event.button == 5:
+                        enemy.shoot_fireball = False
                 elif player_joystick is not None and ejid is not None and ejid == _joy_get_id(player_joystick):
                     if event.button == 3:
                         player.shield = False
                     if event.button == 4:
                         player.jump = False
+                    if event.button == 5:
+                        player.shoot_fireball = False
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
@@ -280,8 +284,7 @@ def main():
         elif game_state == 'countdown':
             pygame.draw.line(screen, (76, 85, 91), (0, GROUND_Y), (WIDTH, GROUND_Y))
             
-            player.draw()
-            enemy.draw()
+           
             player.bars(screen, enemy)
 
             
@@ -329,12 +332,14 @@ def main():
             player.move(player_move_right, player_move_left, screen, enemy)
             player.bars(screen, enemy)
             player.health_tiles(screen, enemy)
+            player.fireballs(enemy)
             player.attack(screen, enemy, punch, shield)
-            player.draw()
-            player.update()
+            player.draw(screen)
+            player.update() 
             enemy.player2_move(enemy_move_right, enemy_move_left, screen, player)
             enemy.attack(screen, player, punch, shield)
-            enemy.draw()
+            enemy.fireballs(player)
+            enemy.draw(screen) 
             enemy.update()
 
             if (not player.alive or not enemy.alive) and death_time is None:
